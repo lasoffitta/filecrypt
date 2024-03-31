@@ -30,14 +30,20 @@ def start(update: Update, context: CallbackContext) -> None:
     update.message.reply_text('Inserisci un URL FileCrypt con /link <url>')
 
 def process_links(update: Update, context: CallbackContext) -> None:
-    filecrypt_urls = update.message.text.split('\n')
-    for filecrypt_url in filecrypt_urls:
-        if filecrypt_url:
-            links = get_links(filecrypt_url)
-            for link in links:
-                update.message.reply_text(link)
-        else:
-            update.message.reply_text('Per favore, fornisce un URL valido.')
+    filecrypt_url = update.message.text
+    if "/link" in filecrypt_url:
+        filecrypt_url = filecrypt_url.replace("/link ", "")
+    if filecrypt_url:
+        links = get_links(filecrypt_url)
+        for link in links:
+            update.message.reply_text(link)
+    else:
+        update.message.reply_text('Per favore, fornisce un URL valido.')
+
+dp = Dispatcher(bot, None, use_context=True)
+dp.add_handler(CommandHandler("start", start))
+dp.add_handler(CommandHandler("link", process_links))
+dp.add_handler(MessageHandler(Filters.text & ~Filters.command, process_links))
 
 def get_links(filecrypt_url):
     logging.debug(f"Processing {filecrypt_url}...")
@@ -63,10 +69,6 @@ def get_links(filecrypt_url):
         dcrypt_response = requests.post(dcrypt_url, data=dcrypt_data)
         dcrypt_json = json.loads(dcrypt_response.text)
         return dcrypt_json['success']['links']
-
-dp = Dispatcher(bot, None, use_context=True)
-dp.add_handler(CommandHandler("start", start))
-dp.add_handler(MessageHandler(Filters.text & ~Filters.command, process_links))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get('PORT', '8000')))
