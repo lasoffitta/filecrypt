@@ -87,3 +87,13 @@ async def file_deeplink(file_id):
     code = request.args.get('code') or abort(401)
 
     return redirect(f'https://t.me/{Telegram.BOT_USERNAME}?start=file_{file_id}_{code}')
+    
+@bp.route('/get_code/<int:chat_id>/<int:file_id>')
+async def get_code(chat_id, file_id):
+    # Recupera il messaggio dalla chat specificata
+    message = await get_message(chat_id=chat_id, message_id=file_id)
+    if message is None:
+        abort(404)
+
+    # Restituisci il codice del messaggio
+    return message.raw_text
