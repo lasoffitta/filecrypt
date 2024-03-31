@@ -82,9 +82,10 @@ async def transmit_file(chat_id, file_id):
 
 @bp.route('/stream/<int:chat_id>/<int:file_id>')
 async def stream_file(chat_id, file_id):
-    code = request.args.get('code') or abort(401)
-
-    return await render_template('player.html', mediaLink=f'{Server.BASE_URL}/dl/{chat_id}/{file_id}?code={code}')
+    # Recupera il file da Telegram
+    file = await get_message(chat_id, message_id=int(file_id)) or abort(404)
+    # Restituisci il file come stream
+    return await send_file(file, as_attachment=True)
 
 @bp.route('/file/<int:chat_id>/<int:file_id>')
 async def file_deeplink(chat_id, file_id):
