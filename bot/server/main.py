@@ -91,7 +91,7 @@ async def file_deeplink(file_id):
 @bp.route('/get_code/<int:chat_id>/<int:file_id>')
 async def get_code(chat_id, file_id):
     # Recupera il messaggio dalla chat specificata
-    message = await get_message(chat_id=chat_id, message_id=file_id)
+    message = await get_message(message_id=file_id)
     if message is None:
         abort(404)
 
