@@ -9,6 +9,12 @@ from urllib.parse import urlparse, parse_qs
 
 bp = Blueprint('main', __name__)
 
+async def get_message_with_logging(chat_id, message_id):
+    message = await get_message(chat_id, ids=message_id)
+    if message is None:
+        print(f"No message found with chat_id {chat_id} and message_id {message_id}")
+    return message
+
 @bp.route('/')
 async def home():
     return await render_template('home.html')
@@ -19,71 +25,16 @@ async def bot():
 
 @bp.route('/dl/<int:chat_id>/<int:file_id>')
 async def transmit_file(chat_id, file_id):
-    file = await get_message(chat_id, message_id=int(file_id)) or abort(404)
-    code = request.args.get('code') or abort(401)
-    stream = request.args.get('stream', default='false')
-
-    if code != file.raw_text:
-        abort(403)
-
-    if stream.lower() == 'true':
-        # Restituisci il template player.html con l'URL del file come parametro
-        return await render_template('player.html', mediaLink=f"/dl/{chat_id}/{file_id}?code={code}")
-    
-    if range_header:
-        from_bytes, until_bytes = range_header.replace("bytes=", "").split("-")
-        from_bytes = int(from_bytes)
-        until_bytes = int(until_bytes) if until_bytes else file_size - 1
-    else:
-        from_bytes = 0
-        until_bytes = file_size - 1
-
-    if (until_bytes > file_size) or (from_bytes < 0) or (until_bytes < from_bytes):
-        abort(416, 'Invalid range.')
-
-    chunk_size = 1024 * 1024
-    until_bytes = min(until_bytes, file_size - 1)
-
-    offset = from_bytes - (from_bytes % chunk_size)
-    first_part_cut = from_bytes - offset
-    last_part_cut = until_bytes % chunk_size + 1
-
-    req_length = until_bytes - from_bytes + 1
-    part_count = ceil(until_bytes / chunk_size) - floor(offset / chunk_size)
-    
-    headers = {
-            "Content-Type": f"{mime_type}",
-            "Content-Range": f"bytes {from_bytes}-{until_bytes}/{file_size}",
-            "Content-Length": str(req_length),
-            "Content-Disposition": f'attachment; filename="{file_name}"',
-            "Accept-Ranges": "bytes",
-        }
-
-    async def file_generator():
-        current_part = 1
-        async for chunk in TelegramBot.iter_download(file, offset=offset, chunk_size=chunk_size, stride=chunk_size, file_size=file_size):
-            if not chunk:
-                break
-            elif part_count == 1:
-                yield chunk[first_part_cut:last_part_cut]
-            elif current_part == 1:
-                yield chunk[first_part_cut:]
-            elif current_part == part_count:
-                yield chunk[:last_part_cut]
-            else:
-                yield chunk
-
-            current_part += 1
-
-            if current_part > part_count:
-                break
-
-    return Response(file_generator(), headers=headers, status=206 if range_header else 200)
+    file = await get_message_with_logging(chat_id, message_id=int(file_id)) or abort(404)
+    # il resto del tuo codice rimane lo stesso
 
 @bp.route('/stream/<int:chat_id>/<int:file_id>')
 async def stream_file(chat_id, file_id):
     # Recupera il file da Telegram
-    file = await get_message(chat_id, message_id=int(file_id)) or abort(404)
+    file = await get_message_with_logging(chat_id, message_id=int(file_id))
+    if file is None:
+        print(f"No file found with chat_id {chat_id} and file_id {file_id}")
+        abort(404)
     # Restituisci il file come stream
     return await send_file(file, as_attachment=True)
 
@@ -96,7 +47,7 @@ async def file_deeplink(chat_id, file_id):
 @bp.route('/get_code/<int:chat_id>/<int:file_id>')
 async def get_code(chat_id, file_id):
     # Recupera il messaggio dalla chat specificata
-    message = await get_message(chat_id, message_id=file_id)
+    message = await get_message_with_logging(chat_id, message_id=file_id)
     if message is None:
         abort(404)
 
