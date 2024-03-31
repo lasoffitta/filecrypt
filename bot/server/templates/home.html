@@ -1,8 +1,9 @@
 <form id="streamForm">
     <input type="text" id="telegramUrl" placeholder="Inserisci l'URL di Telegram">
-	<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
     <button type="submit">Genera link di streaming</button>
 </form>
+<p id="error-message"></p>
 <script>
     var player = new Plyr('#stream-media', {
         controls:['play-large', 'rewind', 'play', 'fast-forward', 'progress', 'current-time', 'mute', 'settings', 'pip', 'fullscreen'],
