@@ -3,20 +3,50 @@
     <button type="submit">Genera link di streaming</button>
 </form>
 <script>
-    document.getElementById("streamForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-        var telegramUrl = document.getElementById("telegramUrl").value;
-        fetch('/generate_stream_link', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({telegram_url: telegramUrl})
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Visualizza l'URL di streaming
-            console.log('URL di streaming:', data.stream_url);
-        });
+    var player = new Plyr('#stream-media', {
+        controls:['play-large', 'rewind', 'play', 'fast-forward', 'progress', 'current-time', 'mute', 'settings', 'pip', 'fullscreen'],
+        settings:['speed','loop'],
+        speed:{selected:1,options:[0.25,0.5,0.75,1,1.25,1.5,1.75,2]},
+        seek: 10,
+        keyboard: { focused: true, global: true },
     });
+
+    var mediaLink = "{{ mediaLink }}";
+
+    if (mediaLink) {
+        document.querySelector('#stream-media source').setAttribute('src', mediaLink);
+        player.restart();
+
+        var downloadButton = document.createElement('div');
+        downloadButton.className = 'plyr-download-button';
+
+        downloadButton.onclick = function() {
+          event.stopPropagation();
+          var link = document.createElement('a');
+          link.href = mediaLink;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        };
+
+        player.elements.container.querySelector('.plyr__video-wrapper').appendChild(downloadButton);
+
+        var shareButton = document.createElement('div');
+        shareButton.className = 'plyr-share-button';
+
+        shareButton.onclick = function() {
+          event.stopPropagation();
+          if (navigator.share) {
+            navigator.share({
+              title: "Play",
+              url: mediaLink
+            });
+          }
+        };
+
+        player.elements.container.querySelector('.plyr__video-wrapper').appendChild(shareButton);
+
+    } else {
+        document.getElementById('error-message').textContent = 'Error: Media URL not provided';
+    }
 </script>
