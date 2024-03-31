@@ -15,9 +15,9 @@ async def home():
 async def bot():
     return redirect(f'https://t.me/{Telegram.BOT_USERNAME}')
 
-@bp.route('/dl/<int:file_id>')
-async def transmit_file(file_id):
-    file = await get_message(message_id=int(file_id)) or abort(404)
+@bp.route('/dl/<int:chat_id>/<int:file_id>')
+async def transmit_file(chat_id, file_id):
+    file = await get_message(chat_id, message_id=int(file_id)) or abort(404)
     code = request.args.get('code') or abort(401)
     range_header = request.headers.get('Range', 0)
 
@@ -76,22 +76,22 @@ async def transmit_file(file_id):
 
     return Response(file_generator(), headers=headers, status=206 if range_header else 200)
 
-@bp.route('/stream/<int:file_id>')
-async def stream_file(file_id):
+@bp.route('/stream/<int:chat_id>/<int:file_id>')
+async def stream_file(chat_id, file_id):
     code = request.args.get('code') or abort(401)
 
-    return await render_template('player.html', mediaLink=f'{Server.BASE_URL}/dl/{file_id}?code={code}')
+    return await render_template('player.html', mediaLink=f'{Server.BASE_URL}/dl/{chat_id}/{file_id}?code={code}')
 
-@bp.route('/file/<int:file_id>')
-async def file_deeplink(file_id):
+@bp.route('/file/<int:chat_id>/<int:file_id>')
+async def file_deeplink(chat_id, file_id):
     code = request.args.get('code') or abort(401)
 
-    return redirect(f'https://t.me/{Telegram.BOT_USERNAME}?start=file_{file_id}_{code}')
+    return redirect(f'https://t.me/{Telegram.BOT_USERNAME}?start=file_{chat_id}_{file_id}_{code}')
     
 @bp.route('/get_code/<int:chat_id>/<int:file_id>')
 async def get_code(chat_id, file_id):
     # Recupera il messaggio dalla chat specificata
-    message = await get_message(message_id=file_id)
+    message = await get_message(chat_id, message_id=file_id)
     if message is None:
         abort(404)
 
