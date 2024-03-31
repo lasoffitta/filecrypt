@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <button id="streamButton">Guarda in streaming</button>
+
+    <script>
+        document.getElementById("streamButton").addEventListener("click", function() {
+            var file_id = 3925;  // sostituisci con il tuo file_id
+            var code = "your_code_here";  // sostituisci con il tuo codice
+            var url = '/stream/' + file_id + '?code=' + code;
+            window.open(url, '_blank');
+        });
+    </script>
+</body>
+</html>

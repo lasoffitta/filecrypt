@@ -9,6 +9,10 @@ bp = Blueprint('main', __name__)
 
 @bp.route('/')
 async def home():
+    return await render_template('home.html')
+
+@bp.route('/bot')
+async def bot():
     return redirect(f'https://t.me/{Telegram.BOT_USERNAME}')
 
 @bp.route('/dl/<int:file_id>')
