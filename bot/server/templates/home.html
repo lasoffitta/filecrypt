@@ -7,20 +7,28 @@
     <button id="streamButton">Guarda in streaming</button>
 
     <script>
-		document.getElementById("streamButton").addEventListener("click", function() {
-			var chat_id = 1863386946;  // sostituisci con il tuo chat_id
-			var file_id = 3925;  // sostituisci con il tuo file_id
-			var url = '/get_code/' + chat_id + '/' + file_id;  // sostituisci con l'endpoint del tuo bot che restituisce il codice
+        document.getElementById("streamButton").addEventListener("click", function() {
+            var chat_id = 1863386946;  // sostituisci con il tuo chat_id
+            var file_id = 3925;  // sostituisci con il tuo file_id
+            var url = '/get_code/' + chat_id + '/' + file_id;  // sostituisci con l'endpoint del tuo bot che restituisce il codice
 
-			// Fai una chiamata AJAX al tuo bot per ottenere il codice
-			fetch(url)
-			.then(response => response.text())
-			.then(code => {
-				// Costruisci l'URL con il codice ricevuto
-				var streamUrl = '/stream/' + file_id + '?code=' + code;
-				window.open(streamUrl, '_blank');
-			});
-		});
+            // Fai una chiamata AJAX al tuo bot per ottenere il codice
+            fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(code => {
+                // Costruisci l'URL con il codice ricevuto
+                var streamUrl = '/stream/' + file_id + '?code=' + code;
+                window.open(streamUrl, '_blank');
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+        });
     </script>
 </body>
 </html>
