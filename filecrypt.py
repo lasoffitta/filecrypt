@@ -26,6 +26,12 @@ def webhook():
 def index():
     return 'Hello World!'
 
+@app.route('/test/<path:filecrypt_url>')
+def test(filecrypt_url):
+    filecrypt_url = 'https://' + filecrypt_url  # Aggiungi 'https://' all'inizio dell'URL
+    links = get_links(filecrypt_url)
+    return {'links': links}
+
 def start(update: Update, context: CallbackContext) -> None:
     update.message.reply_text('Inserisci un URL FileCrypt con /link <url>')
 
@@ -45,9 +51,13 @@ dp.add_handler(CommandHandler("start", start))
 dp.add_handler(CommandHandler("link", process_links))
 dp.add_handler(MessageHandler(Filters.text & ~Filters.command, process_links))
 
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+}
+
 def get_links(filecrypt_url):
     logging.debug(f"Processing {filecrypt_url}...")
-    response = requests.get(filecrypt_url)
+    response = requests.get(filecrypt_url, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     if "/Link/" in filecrypt_url:
@@ -63,10 +73,10 @@ def get_links(filecrypt_url):
             return []
         dlc_id = dlcdownload_element['onclick'].split("'")[1]
         dlc_url = f"https://{filecrypt_url.split('/')[2]}/DLC/{dlc_id}.dlc"
-        dlc_response = requests.get(dlc_url)
+        dlc_response = requests.get(dlc_url, headers=headers)
         dcrypt_url = "http://dcrypt.it/decrypt/paste"
         dcrypt_data = {"content": dlc_response.text}
-        dcrypt_response = requests.post(dcrypt_url, data=dcrypt_data)
+        dcrypt_response = requests.post(dcrypt_url, data=dcrypt_data, headers=headers)
         dcrypt_json = json.loads(dcrypt_response.text)
         return dcrypt_json['success']['links']
 
