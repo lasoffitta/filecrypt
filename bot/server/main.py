@@ -5,6 +5,7 @@ from bot.config import Telegram, Server
 from math import ceil, floor
 from bot.modules.telegram import get_message, get_file_properties
 from telethon.sync import TelegramClient
+from urllib.parse import urlparse, parse_qs
 
 bp = Blueprint('main', __name__)
 
@@ -114,3 +115,20 @@ async def forward_message(chat_id, file_id):
     await client.stop()
 
     return 'Message forwarded'
+    
+@bp.route('/generate_stream_link', methods=['POST'])
+async def generate_stream_link():
+    # Estrai l'URL di Telegram dal corpo della richiesta
+    data = await request.get_json()
+    telegram_url = data.get('telegram_url')
+
+    # Analizza l'URL di Telegram per ottenere chat_id e file_id
+    parsed_url = urlparse(telegram_url)
+    path_parts = parsed_url.path.split('/')
+    chat_id = path_parts[2]
+    file_id = path_parts[3]
+
+    # Genera l'URL di streaming
+    stream_url = f"{request.url_root}stream/{chat_id}/{file_id}"
+
+    return {'stream_url': stream_url}
