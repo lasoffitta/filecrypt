@@ -6,11 +6,11 @@ from bot import TelegramBot
 from bot.config import Telegram
 from bot.server.error import abort
 
-async def get_message(message_id: int) -> Message | None:
+async def get_message(chat_id: int, message_id: int) -> Message | None:
     message = None
     
     try:
-        message = await TelegramBot.get_messages(Telegram.CHANNEL_ID, ids=message_id)
+        message = await TelegramBot.get_messages(chat_id, ids=message_id)
     except Exception:
         pass
 
