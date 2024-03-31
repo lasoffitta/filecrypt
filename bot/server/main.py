@@ -91,9 +91,25 @@ async def file_deeplink(chat_id, file_id):
 @bp.route('/get_code/<int:chat_id>/<int:file_id>')
 async def get_code(chat_id, file_id):
     # Recupera il messaggio dalla chat specificata
-    message = await get_message(chat_id=chat_id, message_id=file_id)
+    message = await get_message(chat_id, message_id=file_id)
     if message is None:
         abort(404)
 
     # Restituisci il codice del messaggio
     return message.raw_text
+
+@bp.route('/forward_message/<int:chat_id>/<int:file_id>', methods=['POST'])
+async def forward_message(chat_id, file_id):
+    # Inizializza il client
+    client = TelegramClient('bot', Telegram.API_ID, Telegram.API_HASH)
+
+    # Avvia il client
+    await client.start()
+
+    # Inoltra il messaggio
+    await client.forward_messages('@streamingsoffitta_bot', file_id, 'https://t.me/c/' + str(chat_id))
+
+    # Arresta il client
+    await client.stop()
+
+    return 'Message forwarded'
