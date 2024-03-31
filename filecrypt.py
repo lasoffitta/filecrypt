@@ -5,6 +5,7 @@ import os
 
 TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 bot = Bot(TOKEN)
+bot.set_webhook('https://filecrypt.onrender.com/' + TOKEN)  # Imposta il webhook
 
 app = Flask(__name__)
 
