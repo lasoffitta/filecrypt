@@ -1,14 +1,12 @@
+<!-- bot/server/templates/home.html -->
 <form id="streamForm">
     <input type="text" id="telegramUrl" placeholder="Inserisci l'URL di Telegram">
     <button type="submit">Genera link di streaming</button>
 </form>
-<p id="error-message"></p>
 <script>
     document.getElementById('streamForm').addEventListener('submit', function(event) {
         event.preventDefault();
-
         var telegramUrl = document.getElementById('telegramUrl').value;
-
         fetch('/generate_stream_link', {
             method: 'POST',
             headers: {
