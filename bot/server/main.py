@@ -4,6 +4,7 @@ from bot import TelegramBot
 from bot.config import Telegram, Server
 from math import ceil, floor
 from bot.modules.telegram import get_message, get_file_properties
+from telethon.sync import TelegramClient
 
 bp = Blueprint('main', __name__)
 
