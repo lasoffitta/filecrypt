@@ -1,32 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Home</title>
-</head>
-<body>
-    <button id="streamButton">Guarda in streaming</button>
-
-	<script>
-		document.getElementById("streamButton").addEventListener("click", function() {
-			var chat_id = 1863386946;  // sostituisci con il tuo chat_id
-			var file_id = 3925;  // sostituisci con il tuo file_id
-			var url = '/forward_message/' + chat_id + '/' + file_id;  // sostituisci con l'endpoint del tuo server che inoltra il messaggio
-
-			// Fai una chiamata AJAX al tuo server per inoltrare il messaggio
-			fetch(url, { method: 'POST' })
-			.then(response => {
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
-				return response.text();
-			})
-			.then(message => {
-				console.log('Message forwarded:', message);
-			})
-			.catch(error => {
-				console.error('There has been a problem with your fetch operation:', error);
-			});
-		});
-	</script>
-</body>
-</html>
+<form id="streamForm">
+    <input type="text" id="telegramUrl" placeholder="Inserisci l'URL di Telegram">
+    <button type="submit">Genera link di streaming</button>
+</form>
+<script>
+    document.getElementById("streamForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        var telegramUrl = document.getElementById("telegramUrl").value;
+        fetch('/generate_stream_link', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({telegram_url: telegramUrl})
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Visualizza l'URL di streaming
+            console.log('URL di streaming:', data.stream_url);
+        });
+    });
+</script>
