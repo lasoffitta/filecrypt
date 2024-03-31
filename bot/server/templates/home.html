@@ -1,28 +1,47 @@
 <!-- bot/server/templates/home.html -->
-<form id="streamForm">
-    <input type="text" id="telegramUrl" placeholder="Inserisci l'URL di Telegram">
-    <button type="submit">Genera link di streaming</button>
-</form>
-<script>
-    document.getElementById('streamForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        var telegramUrl = document.getElementById('telegramUrl').value;
-        fetch('/generate_stream_link', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                telegram_url: telegramUrl
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.6.8/plyr.css" />
+</head>
+<body>
+    <form id="streamForm">
+        <input type="text" id="telegramUrl" placeholder="Inserisci l'URL di Telegram">
+        <button type="submit">Genera link di streaming</button>
+    </form>
+    <div id="player"></div>
+    <script src="https://cdn.plyr.io/3.6.8/plyr.js"></script>
+    <script>
+        document.getElementById('streamForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var telegramUrl = document.getElementById('telegramUrl').value;
+            fetch('/generate_stream_link', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    telegram_url: telegramUrl
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            var streamUrl = data.stream_url;
-            window.open(streamUrl, '_blank');
-        })
-        .catch(error => {
-            document.getElementById('error-message').textContent = 'Error: ' + error;
+            .then(response => response.json())
+            .then(data => {
+                var streamUrl = data.stream_url;
+                var player = new Plyr('#player', {});
+                player.source = {
+                    type: 'video',
+                    sources: [
+                        {
+                            src: streamUrl,
+                            type: 'video/mp4',
+                        },
+                    ],
+                };
+            })
+            .catch(error => {
+                document.getElementById('error-message').textContent = 'Error: ' + error;
+            });
         });
-    });
-</script>
+    </script>
+</body>
+</html>
