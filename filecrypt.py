@@ -44,7 +44,7 @@ def link(update: Update, context: CallbackContext) -> None:
         update.message.reply_text('Per favore, fornisce un URL valido.')
 
 def main():
-    updater = Updater(token=TOKEN, use_context=True)
+    updater = Updater(TOKEN, use_context=True)
 
     dp = updater.dispatcher
 
