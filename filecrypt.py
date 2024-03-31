@@ -5,6 +5,9 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import json
+import logging
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 bot = Bot(TOKEN)
@@ -26,15 +29,17 @@ def start(update: Update, context: CallbackContext) -> None:
     update.message.reply_text('Inserisci un URL FileCrypt con /link <url>')
 
 def link(update: Update, context: CallbackContext) -> None:
-    filecrypt_url = ' '.join(context.args)
-    if filecrypt_url:
-        links = get_links(filecrypt_url)
-        for link in links:
-            update.message.reply_text(link)
-    else:
-        update.message.reply_text('Per favore, fornisce un URL valido.')
+    filecrypt_urls = ' '.join(context.args).split('\n')
+    for filecrypt_url in filecrypt_urls:
+        if filecrypt_url:
+            links = get_links(filecrypt_url)
+            for link in links:
+                update.message.reply_text(link)
+        else:
+            update.message.reply_text('Per favore, fornisce un URL valido.')
 
 def get_links(filecrypt_url):
+    logging.debug(f"Processing {filecrypt_url}...")
     response = requests.get(filecrypt_url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
