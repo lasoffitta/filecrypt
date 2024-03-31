@@ -21,12 +21,14 @@ async def bot():
 async def transmit_file(chat_id, file_id):
     file = await get_message(chat_id, message_id=int(file_id)) or abort(404)
     code = request.args.get('code') or abort(401)
-    range_header = request.headers.get('Range', 0)
+    stream = request.args.get('stream', default='false')
 
     if code != file.raw_text:
         abort(403)
 
-    file_name, file_size, mime_type = get_file_properties(file)
+    if stream.lower() == 'true':
+        # Restituisci il template player.html con l'URL del file come parametro
+        return await render_template('player.html', mediaLink=f"/dl/{chat_id}/{file_id}?code={code}")
     
     if range_header:
         from_bytes, until_bytes = range_header.replace("bytes=", "").split("-")
