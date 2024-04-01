@@ -53,7 +53,7 @@ dp.add_handler(MessageHandler(Filters.text & ~Filters.command, process_links))
 
 def get_links(filecrypt_url):
     logging.debug(f"Processing {filecrypt_url}...")
-    response = requests.get(filecrypt_url, headers=headers)
+    response = requests.get(filecrypt_url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     if "/Link/" in filecrypt_url:
@@ -69,10 +69,10 @@ def get_links(filecrypt_url):
             return []
         dlc_id = dlcdownload_element['onclick'].split("'")[1]
         dlc_url = f"https://{filecrypt_url.split('/')[2]}/DLC/{dlc_id}.dlc"
-        dlc_response = requests.get(dlc_url, headers=headers)
+        dlc_response = requests.get(dlc_url)
         dcrypt_url = "http://dcrypt.it/decrypt/paste"
         dcrypt_data = {"content": dlc_response.text}
-        dcrypt_response = requests.post(dcrypt_url, data=dcrypt_data, headers=headers)
+        dcrypt_response = requests.post(dcrypt_url, data=dcrypt_data)
         dcrypt_json = json.loads(dcrypt_response.text)
         return dcrypt_json['success']['links']
 
