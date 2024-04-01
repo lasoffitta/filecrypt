@@ -67,7 +67,11 @@ def get_links(filecrypt_url):
         dcrypt_data = {"content": response.text}
         dcrypt_response = requests.post(dcrypt_url, data=dcrypt_data)
         dcrypt_json = json.loads(dcrypt_response.text)
-        return dcrypt_json['success']['links']
+        if 'success' in dcrypt_json:
+            return dcrypt_json['success']['links']
+        else:
+            logging.error(f"Error decrypting links: {dcrypt_json}")
+            return []
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get('PORT', '8000')))
