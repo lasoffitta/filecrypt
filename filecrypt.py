@@ -63,15 +63,8 @@ def get_links(filecrypt_url):
         link = script[start:end].replace('&amp;', '&')
         return [link]
     elif "/Container/" in filecrypt_url:
-        dlcdownload_element = soup.find('button', class_='dlcdownload')
-        if dlcdownload_element is None:
-            print("Could not find the dlcdownload element.")
-            return []
-        dlc_id = dlcdownload_element['onclick'].split("'")[1]
-        dlc_url = f"https://{filecrypt_url.split('/')[2]}/DLC/{dlc_id}.dlc"
-        dlc_response = requests.get(dlc_url)
         dcrypt_url = "http://dcrypt.it/decrypt/paste"
-        dcrypt_data = {"content": dlc_response.text}
+        dcrypt_data = {"content": response.text}
         dcrypt_response = requests.post(dcrypt_url, data=dcrypt_data)
         dcrypt_json = json.loads(dcrypt_response.text)
         return dcrypt_json['success']['links']
