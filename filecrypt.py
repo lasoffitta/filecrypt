@@ -52,7 +52,6 @@ dp.add_handler(CommandHandler("link", process_links))
 dp.add_handler(MessageHandler(Filters.text & ~Filters.command, process_links))
 
 def get_links(filecrypt_url):
-    logging.debug(f"Processing {filecrypt_url}...")
     response = requests.get(filecrypt_url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -65,7 +64,7 @@ def get_links(filecrypt_url):
     elif "/Container/" in filecrypt_url:
         dlcdownload_element = soup.find('button', class_='dlcdownload')
         if dlcdownload_element is None:
-            logging.error("Could not find the dlcdownload element.")
+            print("Could not find the dlcdownload element.")
             return []
         dlc_id = dlcdownload_element['onclick'].split("'")[1]
         dlc_url = f"https://{filecrypt_url.split('/')[2]}/DLC/{dlc_id}.dlc"
@@ -74,11 +73,7 @@ def get_links(filecrypt_url):
         dcrypt_data = {"content": dlc_response.text}
         dcrypt_response = requests.post(dcrypt_url, data=dcrypt_data)
         dcrypt_json = json.loads(dcrypt_response.text)
-        if 'success' in dcrypt_json:
-            return dcrypt_json['success']['links']
-        else:
-            logging.error(f"Error decrypting links: {dcrypt_json}")
-            return []
+        return dcrypt_json['success']['links']
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get('PORT', '8000')))
